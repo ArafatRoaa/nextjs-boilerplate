@@ -68,56 +68,25 @@ export default function TransportMap({
 
   // Initialize map
   useEffect(() => {
+    let mounted = true;
+
     const initMap = async () => {
-      console.log('Map init starting...');
-      if (!mapContainerRef.current || mapRef.current) {
-        console.log('Map already exists or container not ready');
-        return;
-      }
+      if (!mapContainerRef.current || mapRef.current) return;
 
       try {
-        // Import Leaflet
         const L = (await import('leaflet')).default;
-        console.log('Leaflet imported successfully');
 
         // Create map instance
         const map = L.map(mapContainerRef.current).setView([3.139, 101.6869], 11);
-        console.log('Map instance created');
 
         // Add tile layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '© OpenStreetMap contributors'
         }).addTo(map);
-        console.log('Tile layer added');
 
-        // Set up icon defaults
-        const DefaultIcon = L.Icon.Default;
-        DefaultIcon.mergeOptions({
-          iconUrl: '/leaflet/marker-icon.png',
-          iconRetinaUrl: '/leaflet/marker-icon.png',
-          shadowUrl: '/leaflet/marker-shadow.png',
-          iconSize: [25, 41],
-          iconAnchor: [12, 41],
-          popupAnchor: [1, -34],
-          shadowSize: [41, 41]
-        });
-        console.log('Icon defaults configured');
-
-        // Store references and mark as ready
-        mapRef.current = map;
-        leafletRef.current = L;
-        setMapReady(true);
-        console.log('Map initialization complete');
-      } catch (error) {
-        console.error('Failed to initialize map:', error);
-      }
-    };
-
-    initMap();
-
-        // Set default icon URLs and sizes to use the images in public/leaflet
+        // Configure default icon paths (use public/leaflet assets)
         try {
-          const DefaultIcon = (Leaflet as any).Icon?.Default;
+          const DefaultIcon = (L as any).Icon?.Default;
           if (DefaultIcon && DefaultIcon.mergeOptions) {
             DefaultIcon.mergeOptions({
               iconRetinaUrl: '/leaflet/marker-icon.png',
@@ -133,21 +102,17 @@ export default function TransportMap({
           console.warn('Could not set Leaflet default icon options', e);
         }
 
-        const defaultCenter: any = [3.139, 101.6869]; // KL central as default
-        const map = Leaflet.map(mapContainerRef.current).setView(defaultCenter, 11);
-
-        Leaflet.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-
         if (!mounted) return;
         mapRef.current = map;
+        leafletRef.current = L;
         setMapReady(true);
         console.log('TransportMap: Leaflet loaded and map initialized');
       } catch (e) {
         console.error('Failed to load leaflet on client:', e);
       }
-    })();
+    };
+
+    initMap();
 
     return () => {
       mounted = false;
