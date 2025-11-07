@@ -22,7 +22,9 @@ export const mockApiResponse = {
       passengers: { current: 32, capacity: 45, utilization_percentage: 71 },
       bus_stops: [
         { id: 1, name: "KLCC Station", latitude: 3.1578, longitude: 101.7114, estimated_arrival: "14:20", is_next_stop: true },
-        { id: 2, name: "Pavilion KL", latitude: 3.149, longitude: 101.7101, estimated_arrival: "14:28", is_next_stop: false }
+        { id: 2, name: "Pavilion KL", latitude: 3.1490, longitude: 101.7101, estimated_arrival: "14:28", is_next_stop: false },
+        { id: 3, name: "Bukit Bintang", latitude: 3.1456, longitude: 101.7130, estimated_arrival: "14:35", is_next_stop: false },
+        { id: 4, name: "Jalan Ampang", latitude: 3.1570, longitude: 101.7120, estimated_arrival: "14:42", is_next_stop: false }
       ]
     },
     {
@@ -34,7 +36,9 @@ export const mockApiResponse = {
       passengers: { current: 28, capacity: 40, utilization_percentage: 70 },
       bus_stops: [
         { id: 1, name: "KL Sentral", latitude: 3.1338, longitude: 101.6869, estimated_arrival: "14:15", is_next_stop: true },
-        { id: 2, name: "Mont Kiara", latitude: 3.1727, longitude: 101.6509, estimated_arrival: "14:45", is_next_stop: false }
+        { id: 2, name: "Bangsar", latitude: 3.1350, longitude: 101.6820, estimated_arrival: "14:25", is_next_stop: false },
+        { id: 3, name: "Mid Valley", latitude: 3.1170, longitude: 101.6860, estimated_arrival: "14:35", is_next_stop: false },
+        { id: 4, name: "Mont Kiara", latitude: 3.1727, longitude: 101.6509, estimated_arrival: "14:45", is_next_stop: false }
       ]
     },
     {
@@ -45,8 +49,10 @@ export const mockApiResponse = {
       status: "Active",
       passengers: { current: 15, capacity: 40, utilization_percentage: 37.5 },
       bus_stops: [
-        { id: 1, name: "Bangsar South", latitude: 3.135, longitude: 101.682, estimated_arrival: "14:10", is_next_stop: false },
-        { id: 2, name: "KL Sentral", latitude: 3.1338, longitude: 101.6869, estimated_arrival: "14:30", is_next_stop: true }
+        { id: 1, name: "Bangsar South", latitude: 3.1350, longitude: 101.6820, estimated_arrival: "14:10", is_next_stop: false },
+        { id: 2, name: "Bangsar Village", latitude: 3.1360, longitude: 101.6775, estimated_arrival: "14:18", is_next_stop: false },
+        { id: 3, name: "Mid Valley", latitude: 3.1170, longitude: 101.6860, estimated_arrival: "14:24", is_next_stop: false },
+        { id: 4, name: "KL Sentral", latitude: 3.1338, longitude: 101.6869, estimated_arrival: "14:30", is_next_stop: true }
       ]
     },
     {
@@ -57,8 +63,10 @@ export const mockApiResponse = {
       status: "Active",
       passengers: { current: 10, capacity: 35, utilization_percentage: 28.6 },
       bus_stops: [
-        { id: 1, name: "Cheras Station", latitude: 3.148, longitude: 101.718, estimated_arrival: "14:12", is_next_stop: true },
-        { id: 2, name: "Ampang", latitude: 3.160, longitude: 101.730, estimated_arrival: "14:35", is_next_stop: false }
+        { id: 1, name: "Cheras Station", latitude: 3.1480, longitude: 101.7180, estimated_arrival: "14:12", is_next_stop: true },
+        { id: 2, name: "Taman Midah", latitude: 3.1370, longitude: 101.7160, estimated_arrival: "14:20", is_next_stop: false },
+        { id: 3, name: "Pandan Jaya", latitude: 3.1390, longitude: 101.7320, estimated_arrival: "14:28", is_next_stop: false },
+        { id: 4, name: "Ampang", latitude: 3.1600, longitude: 101.7300, estimated_arrival: "14:35", is_next_stop: false }
       ]
     },
     {
@@ -69,8 +77,10 @@ export const mockApiResponse = {
       status: "Active",
       passengers: { current: 22, capacity: 40, utilization_percentage: 55 },
       bus_stops: [
-        { id: 1, name: "USJ 21", latitude: 3.039, longitude: 101.580, estimated_arrival: "14:05", is_next_stop: true },
-        { id: 2, name: "Setia Jaya", latitude: 3.025, longitude: 101.580, estimated_arrival: "14:25", is_next_stop: false }
+        { id: 1, name: "USJ 21", latitude: 3.0390, longitude: 101.5800, estimated_arrival: "14:05", is_next_stop: true },
+        { id: 2, name: "Subang Parade", latitude: 3.0300, longitude: 101.5850, estimated_arrival: "14:12", is_next_stop: false },
+        { id: 3, name: "SS15", latitude: 3.0635, longitude: 101.5890, estimated_arrival: "14:20", is_next_stop: false },
+        { id: 4, name: "Setia Jaya", latitude: 3.0250, longitude: 101.5800, estimated_arrival: "14:25", is_next_stop: false }
       ]
     },
     {
@@ -81,8 +91,10 @@ export const mockApiResponse = {
       status: "Active",
       passengers: { current: 8, capacity: 30, utilization_percentage: 26.7 },
       bus_stops: [
-        { id: 1, name: "Gombak Terminal", latitude: 3.237, longitude: 101.706, estimated_arrival: "14:40", is_next_stop: true },
-        { id: 2, name: "Wangsa Maju", latitude: 3.210, longitude: 101.718, estimated_arrival: "15:00", is_next_stop: false }
+        { id: 1, name: "Gombak Terminal", latitude: 3.2370, longitude: 101.7060, estimated_arrival: "14:40", is_next_stop: true },
+        { id: 2, name: "Wangsa Maju", latitude: 3.2100, longitude: 101.7180, estimated_arrival: "15:00", is_next_stop: false },
+        { id: 3, name: "Setiawangsa", latitude: 3.1740, longitude: 101.7190, estimated_arrival: "15:12", is_next_stop: false },
+        { id: 4, name: "Titiwangsa", latitude: 3.1680, longitude: 101.7060, estimated_arrival: "15:25", is_next_stop: false }
       ]
     }
   ],

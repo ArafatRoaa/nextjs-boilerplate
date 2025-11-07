@@ -80,9 +80,9 @@ export default function TransportMap({ lines, selectedBusId }: TransportMapProps
     };
   }, []);
 
-  // Add markers when map is ready
+  // Add markers / route for selected bus only
   useEffect(() => {
-    const addMarkers = async () => {
+    const renderSelectedBus = async () => {
       if (!mapReady || !mapRef.current) {
         console.log('Map not ready for markers');
         return;
@@ -90,85 +90,134 @@ export default function TransportMap({ lines, selectedBusId }: TransportMapProps
 
       try {
         const L = (await import('leaflet')).default;
-        console.log('Adding markers for', lines.length, 'buses');
+        console.log('Rendering selected bus:', selectedBusId);
 
-        // Clear existing markers
-        Object.values(markersRef.current).forEach((marker: any) => marker.remove());
+        // Clear existing markers / polylines
+        // markersRef will hold keys: 'bus', 'stops' (array), 'polyline'
+        try {
+          if (markersRef.current.polyline) {
+            markersRef.current.polyline.remove();
+          }
+          if (markersRef.current.stops) {
+            markersRef.current.stops.forEach((m: any) => m.remove());
+          }
+          if (markersRef.current.bus) {
+            markersRef.current.bus.remove();
+          }
+        } catch (e) {
+          // ignore
+        }
         markersRef.current = {};
 
-        // Add markers for each bus
-        const bounds = L.latLngBounds([]);
-        
-        lines.forEach(line => {
-          const position = [line.current_location.latitude, line.current_location.longitude];
-          
-          // Create marker with divIcon
-          const marker = L.marker(position as [number, number], {
-            icon: L.divIcon({
-              className: 'bus-marker',
-              html: `
-                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white font-bold border-2 border-white shadow-lg">
-                  ${line.id}
-                </div>
-              `,
-              iconSize: [32, 32],
-              iconAnchor: [16, 16],
-            })
-          });
+        if (selectedBusId === null) {
+          // nothing to render
+          return;
+        }
 
-          // Add popup
-          marker.bindPopup(`
-            <div class="bg-white rounded-lg p-4 min-w-[200px]">
-              <div class="font-bold text-lg mb-2">Bus ${line.id}</div>
-              <div class="space-y-2">
-                <div class="flex justify-between">
-                  <span class="text-gray-600">Status:</span>
-                  <span class="font-medium text-green-500">${line.status}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600">Capacity:</span>
-                  <span class="font-medium">${line.passengers?.utilization_percentage || 0}%</span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600">Next Stop:</span>
-                  <span class="font-medium">${line.bus_stops?.find(stop => stop.is_next_stop)?.name || 'N/A'}</span>
-                </div>
+        const line = lines.find(l => l.id === selectedBusId);
+        if (!line) return;
+
+        const busPos: [number, number] = [line.current_location.latitude, line.current_location.longitude];
+
+        // Bus marker
+        const busMarker = L.marker(busPos, {
+          icon: L.divIcon({
+            className: 'bus-marker-selected',
+            html: `
+              <div class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center text-white font-bold border-2 border-white shadow-lg">
+                ${line.id}
+              </div>
+            `,
+            iconSize: [36, 36],
+            iconAnchor: [18, 18],
+          })
+        }).addTo(mapRef.current);
+
+        busMarker.bindPopup(`
+          <div class="bg-white rounded-lg p-4 min-w-[200px]">
+            <div class="font-bold text-lg mb-2">Bus ${line.id}</div>
+            <div class="space-y-2">
+              <div class="flex justify-between">
+                <span class="text-gray-600">Status:</span>
+                <span class="font-medium ${line.status === 'Active' ? 'text-green-500' : 'text-gray-500'}">${line.status}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Capacity:</span>
+                <span class="font-medium">${line.passengers?.utilization_percentage || 0}%</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Next Stop:</span>
+                <span class="font-medium">${line.bus_stops?.find(stop => stop.is_next_stop)?.name || 'N/A'}</span>
               </div>
             </div>
-          `);
+          </div>
+        `);
 
-          marker.addTo(mapRef.current!);
-          markersRef.current[line.id] = marker;
-          bounds.extend(position as [number, number]);
-        });
+        markersRef.current.bus = busMarker;
 
-        // Fit map to show all markers
-        if (!bounds.isEmpty()) {
-          mapRef.current.fitBounds(bounds, { padding: [50, 50] });
+        // Build route: start with current location then stops
+        const routeCoords: [number, number][] = [];
+        routeCoords.push(busPos);
+        if (line.bus_stops && line.bus_stops.length > 0) {
+          line.bus_stops.forEach(s => routeCoords.push([s.latitude, s.longitude]));
         }
+
+        // Draw polyline
+        const poly = L.polyline(routeCoords as any[], {
+          color: '#ff7a7a',
+          weight: 3,
+          opacity: 0.8
+        }).addTo(mapRef.current);
+        markersRef.current.polyline = poly;
+
+        // Add stop markers
+        markersRef.current.stops = [];
+        if (line.bus_stops) {
+          line.bus_stops.forEach(stop => {
+            const stopMarker = L.circleMarker([stop.latitude, stop.longitude], {
+              radius: stop.is_next_stop ? 8 : 6,
+              color: stop.is_next_stop ? '#ff9900' : '#666',
+              fillColor: stop.is_next_stop ? '#ffdd99' : '#fff',
+              fillOpacity: stop.is_next_stop ? 0.9 : 0.6
+            }).bindPopup(`
+              <div class="p-2">
+                <div class="font-bold">${stop.name}</div>
+                <div class="text-sm">Next Bus Arrival: ${stop.estimated_arrival || 'N/A'}</div>
+              </div>
+            `).addTo(mapRef.current!);
+            markersRef.current.stops.push(stopMarker);
+          });
+        }
+
+        // Fit to route bounds
+        const bounds = L.latLngBounds(routeCoords as any[]);
+        if (bounds && bounds.isValid && bounds.isValid()) {
+          mapRef.current.fitBounds(bounds, { padding: [60, 60] });
+        } else {
+          mapRef.current.setView(busPos, 13);
+        }
+
       } catch (error) {
-        console.error('Failed to add markers:', error);
+        console.error('Failed to render selected bus:', error);
       }
     };
 
-    addMarkers();
-  }, [lines, mapReady]);
+    renderSelectedBus();
+  }, [selectedBusId, lines, mapReady]);
 
   // Handle selected bus
   useEffect(() => {
     if (!mapReady || !mapRef.current || selectedBusId === null) return;
 
-    const marker = markersRef.current[selectedBusId];
-    if (marker) {
-      const line = lines.find(l => l.id === selectedBusId);
-      if (line) {
-        mapRef.current.setView(
-          [line.current_location.latitude, line.current_location.longitude],
-          13,
-          { animate: true }
-        );
-        marker.openPopup();
-      }
+    const busMarker = markersRef.current.bus;
+    const line = lines.find(l => l.id === selectedBusId);
+    if (busMarker && line) {
+      mapRef.current.setView(
+        [line.current_location.latitude, line.current_location.longitude],
+        13,
+        { animate: true }
+      );
+      busMarker.openPopup();
     }
   }, [selectedBusId, lines, mapReady]);
 
@@ -182,6 +231,13 @@ export default function TransportMap({ lines, selectedBusId }: TransportMapProps
           align-items: center;
           justify-content: center;
           z-index: 1000 !important;
+        }
+        .bus-marker-selected {
+          display: flex !important;
+          align-items: center;
+          justify-content: center;
+          z-index: 1100 !important;
+          transform: translateY(-2px);
         }
         .leaflet-popup-content-wrapper {
           padding: 0;

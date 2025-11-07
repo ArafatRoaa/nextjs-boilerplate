@@ -166,11 +166,11 @@ export default function TransportPage() {
                 </thead>
                 <tbody>
                   {selectedBusId && lines.find(l => l.id === selectedBusId)?.bus_stops?.map(stop => (
-                    <tr key={stop.id} className="border-b hover:bg-gray-50">
+                    <tr key={stop.id} className={`border-b ${stop.is_next_stop ? 'bg-orange-100' : 'hover:bg-gray-50'}`}>
                       <td className="py-2 px-4">{stop.name}</td>
                       <td className="py-2 px-4">
                         {stop.is_next_stop && (
-                          <span className="inline-block bg-yellow-100 text-yellow-800 px-2 py-1 text-sm rounded mr-2">
+                          <span className="inline-block bg-orange-200 text-orange-800 px-2 py-1 text-sm rounded mr-2">
                             Next Stop
                           </span>
                         )}
